@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>xfail and skip: What to do with tests you know will fail</title>
+
+		
+		
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="reveal.js/dist/reveal.css">
+		<link rel="stylesheet" href="reveal.js/css/theme/white.css" id="theme">
+
+	
+		<link rel="stylesheet" href="css/custom.css">
+	
+
+
+		<!-- For syntax highlighting -->
+		
+		<link rel="stylesheet" href="css/xcode-pg.css">
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="reveal.js/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<div class="slides">
+
+				
+				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
+					<textarea data-template>
+<h1 style="font-size: 3em"><tt>xfail</tt> and <tt>skip</tt></h1>
+<h2 style="font-size: 2.5em">What to do with tests you know will fail</h2>
+<br/>
+<br/>
+<br/>
+<span style="font-size: 2.25em">
+Paul Ganssle
+</span>
+<br/>
+<br/>
+<img src="images/pganssle-logos.svg" height="40px" alt="@pganssle">
+<br/>
+<br/>
+<span style="font-size: 1em;"><em>This talk on Github:
+<a href="https://github.com/pganssle-talks/pytexas-2022-xfail">pganssle-talks/pytexas-2022-xfail</a></em>
+</span>
+<br/>
+<a rel="license" href="https://creativecommons.org/publicdomain/zero/1.0/">
+    <img src="external-images/logos/cc-zero.svg" height="45px">
+</a>
+<br/>
+
+Notes:
+
+					</textarea>
+				</section>
+				
+
+			</div>
+
+<div class="sbcontainer">
+    <img src="images/pganssle-logos-rotated.svg"
+         style="width: 1.1em;"
+         class="sbitem" />
+    <img src="images/ganssleio_rotated.svg"
+         style="width: 1.1em;"
+         class="sbitem" />
+    <img src="external-images/logos/zero-black.svg"
+         style="width: 1.8em;
+                margin-bottom: 0.5em;"
+        class="sbitem">
+</div>
+
+
+		</div>
+
+		<script src="reveal.js/dist/reveal.js"></script>
+		<script src="reveal.js/plugin/markdown/markdown.js"></script>
+		<script src="reveal.js/plugin/zoom/zoom.js"></script>
+		<script src="reveal.js/plugin/highlight/highlight.js"></script>
+		
+			<script src="reveal.js/plugin/notes/notes.js"></script>
+		
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			let r = Reveal();
+			r.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: r.getQueryHash().theme, // available themes are in /css/theme
+				transition: 'linear', // default/cube/page/concave/zoom/linear/fade/none
+                plugins: [
+                    RevealMarkdown,
+                    RevealHighlight,
+                    RevealNotes,
+                    RevealZoom,
+                ],
+
+				
+					
+						// Reveal options generated from mapping
+						
+							width: "95%",
+						
+							height: "95%",
+						
+					
+				
+
+				// The dependencies option is deprecated as of reveal.js 4.0,
+				// but is kept in place for backwards compatibility reasons.
+				dependencies: [
+					
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
