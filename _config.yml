@@ -3,4 +3,4 @@
 #
 # Note that this will be included *after* config/*.yml
 
-title: Title here
+title: "xfail and skip: What to do with tests you know will fail"
