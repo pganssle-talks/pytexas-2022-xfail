@@ -66,7 +66,7 @@ test_square_mod.py <font color="green">..............</font><font color="#8B0000
     <font color="#729FCF">def</font> <font color="green">test_negative</font>():
 &gt;       <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(-<font color="#729FCF">4</font>)
 
-<font color="#8B0000"><b>test_square_mod.py</b></font>:17: 
+<font color="#8B0000"><b>test_square_mod.py</b></font>:17:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 n = -4

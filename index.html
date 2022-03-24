@@ -141,7 +141,7 @@ test_square_mod.py <font color="green">..............</font><font color="#8B0000
     <font color="#729FCF">def</font> <font color="green">test_negative</font>():
 &gt;       <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(-<font color="#729FCF">4</font>)
 
-<font color="#8B0000"><b>test_square_mod.py</b></font>:17: 
+<font color="#8B0000"><b>test_square_mod.py</b></font>:17:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 n = -4
@@ -391,6 +391,614 @@ Your test suite will fail if you accidentally fix a bug - remove the `xfail` and
 				
 				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
 					<textarea data-template>
+# Using `xfail` and `skipif`: Markers
+
+Bare decorator (with or without `reason`)
+
+```python
+@pytest.mark.xfail
+def test_my_failing_function():
+    assert my_function(-3) == 2
+
+
+@pytest.mark.xfail(reason="NaN handling is not working properly yet.")
+def test_float_function():
+    float_function(float("nan"))
+
+
+@pytest.mark.skip(reason="Probably shouldn't do unconditional skipping")
+def test_this_is_pointless():
+    some_random_function()
+```
+
+--
+
+# Using `xfail` and `skipif`: Markers
+
+## Boolean condition
+
+```python
+@pytest.mark.xfail(sys.version_info > (3, 10),
+                   reason="AST handling changed in Python 3.10")
+def test_some_ast_tomfoolery():
+    my_ast_tomfoolery_function("path/to/python_file.py")
+
+
+@pytest.mark.skipif(sys.version_info < (3, 9),
+                    reason="zoneinfo introduced in Python 3.9")
+def test_zoneinfo():
+    import zoneinfo
+    tz = zoneinfo.ZoneInfo("America/Chicago")
+
+    ...
+```
+
+<br/>
+
+## Condition string
+
+<br/>
+
+```python
+@pytest.mark.skipif("not hasattr(os, 'fspath')")
+def path_normalization():
+    assert os.fspath(MyPathClass("a/b/c")) == "a/b/c"
+```
+
+*Condition strings are discouraged*
+
+Notes:
+
+When using boolean conditions, the `reason` parameter must be specified. `pytest` also supports specifying skip and xfail conditions with a string, which has some weird scoping rules that you can look up. This is the older way of specifying conditions and it is now discouraged, but the one advantage it has over boolean conditions is that the condition itself can serve as the reported reason for the skip, so it is not required to specify `reason`.
+
+--
+
+# Using `xfail` and `skipif`: Markers
+
+## The `run` parameter
+
+```python
+@pytest.mark.xfail(
+    run=False
+    reason="Test will segfault if run!"
+)
+def test_surrogate_characters():
+    parsed = datetime.fromisoformat("2022-03-26\ud800)13:15:04")
+    expected = datetime(2022, 3, 26, 13, 15, 4)
+    assert parsed == expected
+```
+
+<br/>
+
+```python
+@pytest.mark.xfail(
+    sys.version_info < (3, 9),
+    run=False,
+    reason="Test segfaults earlier than Python 3.9"
+)
+def test_conditional_segfault():
+    function_that_segfaults_on_38()
+```
+
+Notes:
+
+Using `run=False` basically turns an `xfail` into a `skip`, but semantically it may be useful for you to mark that a given test should succeed but doesn't. `run=False` only applies when the test is actually marked as `xfail`, so if you specify a condition, this basically turns the test into `skipif`.
+
+--
+
+# Using `xfail` and `skipif`: Parameterized tests
+
+<br/>
+
+```python
+@pytest.mark.parametrize("n", [
+    1,
+    pytest.param(0,
+        marks=pytest.mark.xfail(
+            raises=ZeroDivisionError,
+            reason="Zero not handled correctly"
+        )
+    ),
+    pytest.param(-1,
+        marks=pytest.mark.xfail(
+        reason="Not working for negative numbers."
+        )
+    ),
+    5,
+])
+def test_is_euler_number(n):
+    assert is_euler_number(n)
+```
+
+<br/>
+<br/>
+
+<pre>
+<tt class="hljs">
+<b>================================================ test session starts =================================================</b>
+platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
+<b>collected 4 items                                                                                                    </b>
+
+test_euler_numbers.py <font color="#10BA13">.</font><font color="#C4A000">xx</font><font color="#10BA13">.                                                                                     [100%]</font>
+
+<font color="#10BA13">============================================ </font><font color="#4BE234"><b>2 passed</b></font>, <font color="#C4A000">2 xfailed</font><font color="#10BA13"> in 0.03s ============================================</font>
+</tt>
+</pre>
+
+					</textarea>
+				</section>
+				
+				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
+					<textarea data-template>
+# Using `xfail` and `skip`
+
+```python
+@pytest.mark.parametrize("payload", list(
+    pathlib.Path.glob("test_data/test_data_*")
+))
+def test_process_data_files(payload):
+    with open(payload, "rb") as f:
+        test_data = load_data(f)
+
+    if test_data.num_elements > 255:
+        # Don't actually use this! See next slide!
+        pytest.xfail(reason="bug #2445: Processing of data files with > 255 fails.")
+```
+
+<br/>
+
+Can embed these into functions, context managers and fixtures
+
+<br/>
+
+```python
+@contextlib.contextmanager
+def in_local_timezone(tz: str) -> Iterator[None]:
+    if sys.platform.startswith("win") or os.eviron.get("TZ_CHANGE_DISALLOWED") == "true":
+        pytest.skip("Time zone change not allowed")
+
+    old_tz = get_current_tz()
+    set_tz(tz)
+    time.tzset()
+    yield
+    set_tz(old_tz)
+    time.tzset()
+
+
+def test_in_new_york():
+    # This test is skipped automatically in platforms and environments that
+    # don't support changing the time zone.
+    with in_local_timezone("America/New_York"):
+        assert my_date_function("2021-01-01") > my_date_function("2020-01-01")
+```
+
+--
+
+# Papercut: `pytest.xfail()` is basically skip!
+
+- `pytest.xfail()` stops execution immediately — there is no way to get `XPASS`
+- `xfail_strict` has no effect
+- [This is deliberate](https://github.com/pytest-dev/pytest/issues/7071)
+
+<br/><br/>
+
+# Solution: [`pytest-runtime-xfail`](https://github.com/okken/pytest-runtime-xfail)
+
+```python
+@pytest.mark.parametrize("payload", list(
+    pathlib.Path.glob("test_data/test_data_*")
+))
+def test_process_data_files(payload, runtime_xfail):
+    with open(payload, "rb") as f:
+        test_data = load_data(f)
+
+    if test_data.num_elements > 255:
+        # Don't actually use this! See next slide!
+        runtime_xfail(reason="bug #2445: Processing of data files with > 255 fails.")
+```
+
+--
+
+# Papercut: `xfail` with `hypothesis`
+
+```python
+import hypothesis
+from hypothesis import strategies as st
+
+@hypothesis.given(n=st.integers())
+def test_my_function(n: int) -> None:
+    if n < 0:
+        pytest.xfail("Zero and negative numbers not working!")
+
+    assert my_function(n) > n
+```
+<br/>
+
+## Problems:
+
+- Reports a single top-level `XFAIL`:
+
+<pre>
+<tt class="hljs">
+<b>================================================ test session starts =================================================</b>
+platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
+plugins: hypothesis-6.39.4
+<b>collected 1 item                                                                                                     </b>
+
+test_hypothesis.py <font color="#C4A000">x                                                                                           [100%]</font>
+
+<font color="#C4A000">================================================= </font><font color="#FCE94F"><b>1 xfailed</b></font><font color="#C4A000"> in 0.22s =================================================</font>
+</tt>
+</pre>
+
+- Disguises real failures in non-`xfail` cases
+- Doesn't work with `pytest-runtime-xfail`
+
+					</textarea>
+				</section>
+				
+				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
+					<textarea data-template>
+# `xfail` and code coverage
+
+```python
+def do_fizzbuzz(n: int) -> str | int:
+    if (n % 15 == 0):
+        return "fizzbuzz"
+
+    if (n % 3 == 0):
+        return "fizz"
+
+    if (n % 5 == 0):
+        return "buzz"
+
+    return n
+```
+
+Some passing tests:
+
+```python
+import pytest
+
+@pytest.mark.parametrize("n, expected", [
+    (3, "fizz"),
+    (1, 1),
+    (2, 2),
+    (14, 14),
+    (15, "fizzbuzz"),
+])
+def test_fizzbuzz(n, expected):
+    assert do_fizzbuzz(n) == expected
+```
+
+One failing test:
+
+```python
+@pytest.mark.xfail(reason="Not implemented yet")
+def test_fizzbuzz_failure():
+    """Fizzbuzz should fail when passed a negative number."""
+    with pytest.raises(ValueError):
+        do_fizzbuzz(-5)  # Foreshadowing: this hits the n == 5 case!
+```
+
+--
+
+Run with `pytest --cov`:
+
+<pre>
+<tt class="hljs">
+<b>================================================ test session starts =================================================</b>
+platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
+plugins: cov-3.0.0
+<b>collected 23 items / 17 deselected / 6 selected</b>
+
+test_fizzbuzz.py <font color="#10BA13">.....</font><font color="#C4A000">x</font><font color="#10BA13">                                                                                        [100%]</font>
+
+---------- coverage: platform linux, python 3.10.2-final-0 -----------
+Name          Stmts   Miss  Cover
+---------------------------------
+fizzbuzz.py       8      0   100%
+---------------------------------
+TOTAL             8      0   100%
+
+
+<font color="#10BA13">==================================== </font><font color="#4BE234"><b>5 passed</b></font>, <font color="#C4A000">17 deselected</font>, <font color="#C4A000">1 xfailed</font><font color="#10BA13"> in 0.05s =====================================</font>
+</tt>
+</pre>
+
+✨🎉 100% code coverage! 🎉✨
+
+--
+
+```python
+def do_fizzbuzz(n: int) -> str | int:
+    if n < 0:
+        raise ValueError(f"Number must be positive, but got {n}")
+
+    if (n % 15 == 0):
+        return "fizzbuzz"
+
+    if (n % 3 == 0):
+        return "fizz"
+
+    if (n % 5 == 0):
+        return "buzz"  # This line is no longer covered!
+
+    return n
+```
+
+<br/>
+
+Remove the `xfail` decorator, code coverage goes **down**! 😰😰😰
+
+<pre>
+<tt class="hljs">
+<b>================================================ test session starts =================================================</b>
+platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
+plugins: cov-3.0.0
+<b>collected 23 items / 17 deselected / 6 selected                                                                      </b>
+
+test_fizzbuzz.py <font color="#10BA13">.....</font><font color="#C4A000">X                                                                                        [100%]</font>
+
+---------- coverage: platform linux, python 3.10.2-final-0 -----------
+Name          Stmts   Miss  Cover
+---------------------------------
+fizzbuzz.py      10      1    90%
+---------------------------------
+TOTAL            10      1    90%
+
+
+<font color="#C4A000">==================================== </font><font color="#10BA13">5 passed</font>, <font color="#FCE94F"><b>17 deselected</b></font>, <font color="#FCE94F"><b>1 xpassed</b></font><font color="#C4A000"> in 0.05s =====================================</font>
+</tt>
+</pre>
+
+--
+
+```python
+def do_fizzbuzz(n: int) -> str | int:
+    if (n % 15 == 0):
+        return "fizzbuzz"
+
+    if (n % 3 == 0):
+        return "fizz"
+
+    if (n % 5 == 0):
+        return "buzz"
+
+    return n
+```
+
+Some passing tests:
+
+```python
+import pytest
+
+@pytest.mark.parametrize("n, expected", [
+    (3, "fizz"),
+    (1, 1),
+    (2, 2),
+    # 3, 1, 2, but no 5!
+    (14, 14),
+    (15, "fizzbuzz"),
+])
+def test_fizzbuzz(n, expected):
+    assert do_fizzbuzz(n) == expected
+```
+
+One failing test:
+
+```python
+@pytest.mark.xfail(reason="Not implemented yet")
+def test_fizzbuzz_failure():
+    """Fizzbuzz should fail when passed a negative number."""
+    with pytest.raises(ValueError):
+        do_fizzbuzz(-5)  # -5 % 5 == 0
+```
+
+--
+
+## The Problem
+
+- Code coverage metrics assume that your tests *passed*
+
+- Expected failures don't pass, but they also don't cause the test suite to fail!
+
+Notes:
+
+Some lines are hit by well-executed passing tests, and some lines are hit as collateral damage from the flailing death throes of an expected failure. They both show up the same in the coverage statistics!
+
+
+--
+
+# The Solution: Exclude expected failures from coverage
+
+<br/>
+
+With `pytest-cov`, attach the `no_cover` marker automatically in your `conftest.py`:
+
+<br/>
+
+```python
+def pytest_collection_modifyitems(items):
+    for item in items:
+        marker = item.get_closest_marker("xfail")
+
+        # Need to query the args because conditional xfail tests still have
+        # the xfail mark even if they are not expected to fail
+        if marker and (not marker.args or marker.args[0]):
+            item.add_marker(pytest.mark.no_cover)
+```
+
+<br/>
+
+See https://stackoverflow.com/q/53191930/467366
+
+<br/>
+
+[**`coverage.py` wants to add this feature natively**](https://github.com/nedbat/coveragepy/issues/727) — you could be the one to implement it!
+
+--
+
+# Does this matter?
+
+<br/>
+
+**Probably not** <!-- .element: class="fragment" -->
+
+					</textarea>
+				</section>
+				
+				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
+					<textarea data-template>
+# Using `unittest`
+
+```python
+import unittest
+
+class MyTest(unittest.TestCase):
+    def test_pass(self):
+        self.assertTrue(True)
+
+    @unittest.expectedFailure
+    def test_xfail(self):
+        self.assertTrue(False)
+
+    @unittest.expectedFailure
+    def test_xpass(self):
+        self.assertTrue(True)
+
+```
+
+<br/>
+
+<div class="fragment disappearing-fragment nospace-fragment fade-out" data-fragment-index="0">
+Run with <tt>unittest</tt>:
+
+<pre>
+<tt class="hljs">
+$ python -m unittest -v
+test_pass (test_unittest.MyTest) ... ok
+test_xfail (test_unittest.MyTest) ... expected failure
+test_xpass (test_unittest.MyTest) ... unexpected success
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+FAILED (expected failures=1, unexpected successes=1)
+</tt></pre>
+</div>
+
+<div class="fragment nospace-fragment fade-in" data-fragment-index="0">
+Run with <tt>pytest</tt>:
+
+<pre>
+<tt class="hljs">
+$ pytest test_unittest.py 
+<b>================================================ test session starts =================================================</b>
+platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
+<b>collected 3 items                                                                                                    </b>
+
+test_unittest.py <font color="#10BA13">.</font><font color="#C4A000">x</font><font color="#F61010">F                                                                                           [100%]</font>
+
+====================================================== FAILURES ======================================================
+<font color="#EF2929"><b>_________________________________________________ MyTest.test_xpass __________________________________________________</b></font>
+Unexpected success
+============================================== short test summary info ===============================================
+FAILED test_unittest.py::MyTest::test_xpass
+<font color="#F61010">======================================= </font><font color="#EF2929"><b>1 failed</b></font>, <font color="#10BA13">1 passed</font>, <font color="#C4A000">1 xfailed</font><font color="#F61010"> in 0.04s =======================================</font>
+</tt>
+</pre>
+</div>
+
+--
+
+# `unittest`: Missing features
+
+- No `strict=False` or `run=False`
+- No support for `raises`
+- No way to specify a reason
+- Conditional `xfail` not built-in:
+
+  <br/>
+
+```python
+def conditional_xfail(condition):
+    if condition:
+        return unittest.expectedFailure
+    else:
+        return lambda x: x
+```
+
+--
+
+# Skipping with `unittest`
+<br/>
+
+Decorators:
+
+```python
+class MySkipTest(unittest.TestCase):
+    @unittest.skip("Unconditional skipping")
+    def skip_unconditional(self):
+        pass
+
+    @unittest.skipIf(sys.platform.startswith("win"), "Not supported on Windows")
+    def test_nix_only(self):
+        ...
+
+    @unittest.skipUnless(sys.platform.startswith("win"), "Only supported on Windows")
+    def test_windows_only(self):
+        ...
+```
+
+<br/>
+<br/>
+
+At runtime:
+
+```python
+    def test_three_day_weekend(self):
+        if 4 <= datetime.now().weekday() <= 6:
+            self.skipTest("This test has negotiated a 3-day weekend.")
+
+        ...
+
+
+
+    def test_api_integration(self):
+        r = requests.get("https://url.to/some/resource")
+        if r.status_code != 200:
+            raise unittest.SkipTest("Resource not available")
+
+        ...
+```
+
+					</textarea>
+				</section>
+				
+				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
+					<textarea data-template>
+# Bonus for pedants: A pseudo-TDD workflow
+
+<br/>
+
+## Test driven development:
+
+1. Write a minimal failing test.
+2. Write just enough code to make the test pass.
+3. Goto 1.
+
+<br/><br/>
+
+## Reality:
+
+1. Make some quick sketch to see if your idea even works.
+2. Maybe write some tests for the sketch.
+3. Realize your approach has some fundamental flaws, rip out half of the code and break a bunch of the tests.
+4. Clean up and refactor tests.
+
+--
+
 # Bonus for pedants: A pseudo-TDD workflow
 
 ```python
@@ -502,6 +1110,50 @@ Merge and the history looks like we were using TDD the whole time:
 </pre>
 
 https://blog.ganssle.io/articles/2021/11/pseudo-tdd-xfail.html
+
+--
+
+# Advantages
+
+- Gives you some confidence that your tests worked
+- Makes it easier to verify that a test should be working
+- Tells a clear story for future maintainers
+
+<br/> <br/>
+
+# Disadvantages
+
+- It will be hard to get anyone else to do this.
+- It's not easy to run the tests against every commit (on GitHub, Gitlab or locally)
+
+<br/> <br/>
+
+https://blog.ganssle.io/articles/2021/11/pseudo-tdd-xfail.html
+
+					</textarea>
+				</section>
+				
+				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
+					<textarea data-template>
+# Summary
+
+- Use `xfail` for tests that you know are failing, but shouldn't be.
+- Always use `skip` conditionally — it's for tests that aren't *supposed* to pass.
+- Set `xfail_strict=True`
+
+<br/><br/>
+
+## Further reading
+
+- "How and why I use pytest's `xfail`": https://blog.ganssle.io/articles/2021/11/pytest-xfail.html
+
+- "A pseudo-TDD workflow using expected failures": https://blog.ganssle.io/articles/2021/11/pseudo-tdd-xfail.html
+
+- "`xfail` and code coverage": https://blog.ganssle.io/articles/2021/12/xfail-coverage.html
+
+- `pytest-runtime-xfail`: https://pypi.org/project/pytest-runtime-xfail/
+
+- Also featured on Test & Code: https://testandcode.com/guests/paul-ganssle
 
 					</textarea>
 				</section>
