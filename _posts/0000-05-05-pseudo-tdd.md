@@ -1,5 +1,26 @@
 # Bonus for pedants: A pseudo-TDD workflow
 
+<br/>
+
+## Test driven development:
+
+1. Write a minimal failing test.
+2. Write just enough code to make the test pass.
+3. Goto 1.
+
+<br/><br/>
+
+## Reality:
+
+1. Make some quick sketch to see if your idea even works.
+2. Maybe write some tests for the sketch.
+3. Realize your approach has some fundamental flaws, rip out half of the code and break a bunch of the tests.
+4. Clean up and refactor tests.
+
+--
+
+# Bonus for pedants: A pseudo-TDD workflow
+
 ```python
 def is_perfect_square(n: int) -> bool:
     """Determine if any int i exists such that i × i = n."""
@@ -107,5 +128,24 @@ Merge and the history looks like we were using TDD the whole time:
 * <font color="#C4A000">f9acaa7</font> Add implementation for perfect square
 </tt>
 </pre>
+
+https://blog.ganssle.io/articles/2021/11/pseudo-tdd-xfail.html
+
+--
+
+# Advantages
+
+- Gives you some confidence that your tests worked
+- Makes it easier to verify that a test should be working
+- Tells a clear story for future maintainers
+
+<br/> <br/>
+
+# Disadvantages
+
+- It will be hard to get anyone else to do this.
+- It's not easy to run the tests against every commit (on GitHub, Gitlab or locally)
+
+<br/> <br/>
 
 https://blog.ganssle.io/articles/2021/11/pseudo-tdd-xfail.html
