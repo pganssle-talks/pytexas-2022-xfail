@@ -1,6 +1,6 @@
 # `skipif` vs `xfail`
 
-<br/>
+<br/><br/>
 
 ## `skipif` — Use for tests that *are supposed to fail*.
 
@@ -13,7 +13,7 @@ def test_module_getattr_works():
         assert dateutil.tz is not None  # Lazy-loaded
 ```
 
-<br/>
+<br/><br/>
 
 ## `xfail` — Use for tests that *currently fail, but shouldn't*.
 
