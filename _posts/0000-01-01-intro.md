@@ -22,3 +22,8 @@ Paul Ganssle
 
 Notes:
 
+Hi everyone, welcome, welcome! I'm so excited to be speaking here today! This is my first in-person talk in over 2 years, hopefully I still remember how to do this.
+
+I'm Paul Ganssle, you may know me from some of my open source work — I am a Python core dev, where I usually work on `datetime` related things. In my day job, I'm on a machine learning team at Google, which has a beautiful office just a few blocks away from here.
+
+But today I'm here to talk to you about testing. Specifically about how and why you would want to add tests to your test suite that you know are going to fail.
