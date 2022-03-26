@@ -126,8 +126,8 @@ def test_is_euler_number(n):
 platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
 <b>collected 4 items                                                                                                    </b>
 
-test_euler_numbers.py <font color="#10BA13">.</font><font color="#C4A000">xx</font><font color="#10BA13">.                                                                                     [100%]</font>
+test_euler_numbers.py <font class="pytest-chars-green">.</font><font class="pytest-xfail-yellow">xx</font><font class="pytest-chars-green">.                                                                                     [100%]</font>
 
-<font color="#10BA13">============================================ </font><font color="#4BE234"><b>2 passed</b></font>, <font color="#C4A000">2 xfailed</font><font color="#10BA13"> in 0.03s ============================================</font>
+<font class="pytest-chars-green">============================================ </font><font class="pytest-green"><b>2 passed</b></font>, <font class="pytest-xfail-yellow">2 xfailed</font><font class="pytest-chars-green"> in 0.03s ============================================</font>
 </tt>
 </pre>

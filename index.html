@@ -68,11 +68,80 @@ Paul Ganssle
 
 Notes:
 
+Hi everyone, welcome, welcome! I'm so excited to be speaking here today! This is my first in-person talk in over 2 years, hopefully I still remember how to do this.
+
+I'm Paul Ganssle, you may know me from some of my open source work — I am a Python core dev, where I usually work on `datetime` related things. In my day job, I'm on a machine learning team at Google, which has a beautiful office just a few blocks away from here.
+
+But today I'm here to talk to you about testing. Specifically about how and why you would want to add tests to your test suite that you know are going to fail.
+
 					</textarea>
 				</section>
 				
 				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
 					<textarea data-template>
+# `skipif` vs `xfail`
+
+<br/><br/>
+
+## `skipif` — Use for tests that *are supposed to fail*.
+
+```python
+@pytest.mark.skipif(sys.version_info < (3, 8),
+                    reason="Module-level __getattr__ introduced in Python 3.8")
+def test_module_getattr_works():
+    with clear_dateutil_imports():
+        import dateutil
+        assert dateutil.tz is not None  # Lazy-loaded
+```
+
+<br/><br/>
+
+## `xfail` — Use for tests that *currently fail, but shouldn't*.
+
+```python
+@pytest.mark.xfail(reason="Fractional hours and minutes not implemented yet!")
+def test_fractional_hour():
+    # ISO 8601 allows fractional hours and minutes
+    assert (dateutil.parser.isoparse("2021-03-26T14.5") ==
+            datetime.datetime(2021, 3, 26, 14, 30))
+```
+
+Notes:
+
+I thought I'd start by clearing up a very common source of confusion, which is the difference between `xfail` and `skip`. Both `skip` and `xfail` are used to indicate that a test isn't going to succeed, but there are both behavioral and semantic differences between these.
+
+The behavioral difference is easy to explain — with `skip` the test is skipped and never run, whereas with `xfail` — which means expected failure — the default is to run the test, but to not consider the entire test suite as failing if only expected failure tests are failing.
+
+The semantic difference between these is a bit subtler — you should use `skipif` if there are conditions under which the test is *supposed* to fail — for example in `dateutil` we support lazy-loaded modules starting in Python 3.8, but we support earlier versions of Python, so we want to skip the lazy-loaded module tests when testing against earlier versions.
+
+With `xfail`, you are indicating that the test *should* be passing, but you haven't gotten around to fixing the bug or implementing the feature yet. For example, the `dateutil` ISO 8601 parsers is supposed to handle all valid ISO formats, but currently it doesn't work for particularly obscure ones like formats with fractional hours. Luckily, no one cares about these formats, so it's not a high priority, but I at some point I do plan to get around to implementing the feature, so hopefully one day this test will start passing.
+
+					</textarea>
+				</section>
+				
+				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
+					<textarea data-template>
+<img src="images/brock-xfail-suggestion.png"
+     class="fragment disappearing-fragment fade-out"
+     data-fragment-index="0"
+     alt="A comment exchange on dateutil issue #487 from jbrockmendel. Brock suggests: 'This is a class of cases that I intend to fix, but its not high on the priority list. As @pganssle mentioned, its a re-write as opposed to a bug-fix.  One way you could help keep this from drifting down the todo list would be to submit a PR creating a test for this case marked as xfail.' Paul responds with 'I'm going to be honest, I don't love xfail tests, but I am willing to be persuaded about that.'" />
+
+*From [`dateutil` issue #487](https://github.com/dateutil/dateutil/issues/487#issuecomment-340643745)* <!-- .element class="fragment disapearing-fragment fade-out" data-fragment-index="0" -->
+
+<br/>
+
+<img src="images/paul-blog-xfail.png"
+     class="fragment nospace-fragment fade-in"
+     data-fragment-index="0"
+     alt="The most recent 3 blog posts on blog.ganssle.io, all about xfail" />
+
+					</textarea>
+				</section>
+				
+				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
+					<textarea data-template>
+# Example: Perfect square function
+
 ```python
 import math
 
@@ -107,9 +176,9 @@ def test_non_squares(n):
 platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
 <b>collected 14 items                                                                                                  </b>
 
-test_square_mod.py <font color="green">..............                                                                             [100%]</font>
+test_square_mod.py <font class="pytest-chars-green">..............                                                                             [100%]</font>
 
-<font color="green">================================================ </font><font color="green"><b>14 passed</b></font><font color="green"> in 0.02s =================================================</font>
+<font class="pytest-chars-green">================================================ </font><font class="pytest-green"><b>14 passed</b></font><font class="pytest-chars-green"> in 0.02s =================================================</font>
 </tt></pre>
 
 Notes:
@@ -133,28 +202,28 @@ def test_negative():
 platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
 <b>collected 15 items                                                                                                  </b>
 
-test_square_mod.py <font color="green">..............</font><font color="#8B0000">F                                                                            [100%]</font>
+test_square_mod.py <font class="pytest-green">..............</font><font class="pytest-red">F                                                                            [100%]</font>
 
 ===================================================== FAILURES ======================================================
-<font color="#8B0000"><b>___________________________________________________ test_negative ___________________________________________________</b></font>
+<font class="pytest-red"><b>___________________________________________________ test_negative ___________________________________________________</b></font>
 
-    <font color="#729FCF">def</font> <font color="green">test_negative</font>():
+    <font color="#729FCF">def</font> <font class="pytest-green">test_negative</font>():
 &gt;       <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(-<font color="#729FCF">4</font>)
 
-<font color="#8B0000"><b>test_square_mod.py</b></font>:17:
+<font class="pytest-red"><b>test_square_mod.py</b></font>:17:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 n = -4
 
-    <font color="#729FCF">def</font> <font color="green">is_perfect_square</font>(n: <font color="#34E2E2">int</font>) -&gt; <font color="#34E2E2">bool</font>:
-        <font color="green">&quot;&quot;&quot;Determine if any int i exists such that i × i = n.&quot;&quot;&quot;</font>
+    <font color="#729FCF">def</font> <font class="pytest-green">is_perfect_square</font>(n: <font color="#34E2E2">int</font>) -&gt; <font color="#34E2E2">bool</font>:
+        <font class="pytest-green">&quot;&quot;&quot;Determine if any int i exists such that i × i = n.&quot;&quot;&quot;</font>
 &gt;       s = math.sqrt(n)
-<font color="#8B0000"><b>E       ValueError: math domain error</b></font>
+<font class="pytest-red"><b>E       ValueError: math domain error</b></font>
 
-<font color="#8B0000"><b>square_mod.py</b></font>:5: ValueError
+<font class="pytest-red"><b>square_mod.py</b></font>:5: ValueError
 ============================================== short test summary info ==============================================
 FAILED test_square_mod.py::test_negative - ValueError: math domain error
-<font color="#8B0000">=========================================== </font><font color="#8B0000"><b>1 failed</b></font>, <font color="green">14 passed</font><font color="#8B0000"> in 0.08s ============================================</font>
+<font class="pytest-red">=========================================== </font><font class="pytest-red"><b>1 failed</b></font>, <font class="pytest-green">14 passed</font><font class="pytest-red"> in 0.08s ============================================</font>
 </tt>
 </pre>
 
@@ -174,91 +243,18 @@ def test_negative(n):
 <br/><br/>
 Failure is expected, so the tests pass:
 
-<pre><tt class="hljs">
+<pre>
+<tt class="hljs">
 <b>================================================ test session starts ================================================</b>
-platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
+platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
+plugins: subtests-0.7.0, runtime-xfail-1.0.3, cov-3.0.0, hypothesis-6.39.4
 <b>collected 17 items                                                                                                  </b>
 
-test_square_mod.py <font color="#10BA13">..............</font><font color="#C4A000">xxx</font><font color="#10BA13">                                                                          [100%]</font>
+test_square_mod.py <font class="pytest-chars-green">..............</font><font class="pytest-green">xxx</font><font class="pytest-chars-green">                                                                          [100%]</font>
 
-<font color="#10BA13">=========================================== </font><font color="#4BE234"><b>14 passed</b></font>, <font color="#C4A000">3 xfailed</font><font color="#10BA13"> in 0.03s ===========================================</font>
-</tt></pre>
-
---
-
-## Being stricter about *why* the test is failing
-
-```python
-@pytest.mark.xfail(
-    raises=ValueError,
-    reason="Bug #11493: Negative values not supported!"
-    )
-@pytest.mark.parametrize("n", [-1, -3, -4])
-def test_negative(n):
-    # When called with a negative value for n, this test raises ValueError!
-    assert not square_mod.is_perfect_square(m)
-```
-
-<br/>
-
-<pre><tt class="hljs">
-<b>================================================ test session starts ================================================</b>
-platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
-<b>collected 17 items                                                                                                  </b>
-
-test_square_mod.py <font color="#10BA13">..............</font><font color="#F61010">FFF                                                                          [100%]</font>
-
-===================================================== FAILURES ======================================================
-<font color="#EF2929"><b>_________________________________________________ test_negative[-1] _________________________________________________</b></font>
-<font color="#EF2929"><b>test_square_mod.py</b></font>:21: in test_negative
-    <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(m)
-<font color="#EF2929"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
-<font color="#EF2929"><b>_________________________________________________ test_negative[-3] _________________________________________________</b></font>
-<font color="#EF2929"><b>test_square_mod.py</b></font>:21: in test_negative
-    <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(m)
-<font color="#EF2929"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
-<font color="#EF2929"><b>_________________________________________________ test_negative[-4] _________________________________________________</b></font>
-<font color="#EF2929"><b>test_square_mod.py</b></font>:21: in test_negative
-    <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(m)
-<font color="#EF2929"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
-============================================== short test summary info ==============================================
-FAILED test_square_mod.py::test_negative[-1] - NameError: name &apos;m&apos; is not defined
-FAILED test_square_mod.py::test_negative[-3] - NameError: name &apos;m&apos; is not defined
-FAILED test_square_mod.py::test_negative[-4] - NameError: name &apos;m&apos; is not defined
-<font color="#F61010">=========================================== </font><font color="#EF2929"><b>3 failed</b></font>, <font color="#10BA13">14 passed</font><font color="#F61010"> in 0.09s ============================================</font>
-</tt></pre>
-
-					</textarea>
-				</section>
-				
-				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
-					<textarea data-template>
-# `skipif` vs `xfail`
-
-<br/>
-
-## `skipif` — Use for tests that *are supposed to fail*.
-
-```python
-@pytest.mark.skipif(sys.version_info < (3, 8),
-                    reason="Module-level __getattr__ introduced in Python 3.8")
-def test_module_getattr_works():
-    with clear_dateutil_imports():
-        import dateutil
-        assert dateutil.tz is not None  # Lazy-loaded
-```
-
-<br/>
-
-## `xfail` — Use for tests that *currently fail, but shouldn't*.
-
-```python
-@pytest.mark.xfail(reason="Fractional hours and minutes not implemented yet!")
-def test_fractional_hour():
-    # ISO 8601 allows fractional hours and minutes
-    assert (dateutil.parser.isoparse("2021-03-26T14.5") ==
-            datetime.datetime(2021, 3, 26, 14, 30))
-```
+<font class="pytest-chars-green">=========================================== </font><font class="pytest-green"><b>14 passed</b></font>, <font class="pytest-xfail-yellow">3 xfailed</font><font class="pytest-chars-green"> in 0.03s ===========================================</font>
+</tt>
+</pre>
 
 					</textarea>
 				</section>
@@ -285,9 +281,9 @@ def is_perfect_square(n: int) -> bool:
 platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
 <b>collected 15 items                                                                                                  </b>
 
-test_square_mod.py <font color="#10BA13">..............</font><font color="#C4A000">X                                                                            [100%]</font>
+test_square_mod.py <font class="pytest-chars-green">..............</font><font class="pytest-xpass">X                                                                            [100%]</font>
 
-<font color="#C4A000">=========================================== </font><font color="#10BA13">14 passed</font>, <font color="#FCE94F"><b>1 xpassed</b></font><font color="#C4A000"> in 0.02s ===========================================</font>
+<font class="pytest-xpass">=========================================== </font><font class="pytest-chars-green">14 passed</font>, <font class="pytest-xpass"><b>1 xpassed</b></font><font class="pytest-xpass"> in 0.02s ===========================================</font>
 </tt></pre>
 
 --
@@ -310,20 +306,20 @@ def test_negative(n):
 platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
 <b>collected 17 items</b>
 
-test_square_mod.py <font color="#10BA13">..............</font><font color="#F61010">FFF                                                                          [100%]</font>
+test_square_mod.py <font class="pytest-chars-green">..............</font><font class="pytest-red">FFF                                                                          [100%]</font>
 
 ===================================================== FAILURES ======================================================
-<font color="#EF2929"><b>_________________________________________________ test_negative[-1] _________________________________________________</b></font>
+<font class="pytest-red"><b>_________________________________________________ test_negative[-1] _________________________________________________</b></font>
 [XPASS(strict)] Bug #11493: Negative values not supported
-<font color="#EF2929"><b>_________________________________________________ test_negative[-3] _________________________________________________</b></font>
+<font class="pytest-red"><b>_________________________________________________ test_negative[-3] _________________________________________________</b></font>
 [XPASS(strict)] Bug #11493: Negative values not supported
-<font color="#EF2929"><b>_________________________________________________ test_negative[-4] _________________________________________________</b></font>
+<font class="pytest-red"><b>_________________________________________________ test_negative[-4] _________________________________________________</b></font>
 [XPASS(strict)] Bug #11493: Negative values not supported
 ============================================== short test summary info ==============================================
 FAILED test_square_mod.py::test_negative[-1]
 FAILED test_square_mod.py::test_negative[-3]
 FAILED test_square_mod.py::test_negative[-4]
-<font color="#F61010">=========================================== </font><font color="#EF2929"><b>3 failed</b></font>, <font color="#10BA13">14 passed</font><font color="#F61010"> in 0.03s ============================================</font>
+<font class="pytest-red">=========================================== </font><font class="pytest-red"><b>3 failed</b></font>, <font class="pytest-chars-green">14 passed</font><font class="pytest-red"> in 0.03s ============================================</font>
 </tt></pre>
 
 --
@@ -361,6 +357,81 @@ xfail_struct = True
 
 See [the pytest documentation](https://docs.pytest.org/en/latest/reference/customize.html) for the latest options for global configuration, or [the documentation on the `xfail_strict` option](https://docs.pytest.org/en/latest/reference/reference.html#confval-xfail_strict).
 
+--
+
+## Being specific about *why* the test is failing
+
+```python
+@pytest.mark.xfail(reason="Bug #11493: Negative values not supported!")
+@pytest.mark.parametrize("n", [-1, -3, -4])
+def test_negative(n):
+    # When called with a negative value for n, this test raises ValueError!
+    assert not square_mod.is_perfect_square(m)
+```
+
+<br/>
+
+<pre>
+<tt class="hljs">
+<b>================================================ test session starts ================================================</b>
+platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
+plugins: subtests-0.7.0, runtime-xfail-1.0.3, cov-3.0.0, hypothesis-6.39.4
+<b>collected 17 items                                                                                                  </b>
+
+test_square_mod.py <font class="pytest-chars-green">..............</font><font class="pytest-xfail-yellow">xxx</font><font class="pytest-chars-green">                                                                          [100%]</font>
+
+<font class="pytest-chars-green">=========================================== </font><font class="pytest-green"><b>14 passed</b></font>, <font class="pytest-xfail-yellow">3 xfailed</font><font class="pytest-chars-green"> in 0.03s ===========================================</font>
+</tt>
+</pre>
+
+<br/>
+
+**Actually failing because of `NameError`** <!-- .element class="fragment" data-fragment-index="0" -->
+
+--
+
+## Being specific about *why* the test is failing
+
+```python
+@pytest.mark.xfail(
+    raises=ValueError,
+    reason="Bug #11493: Negative values not supported!"
+    )
+@pytest.mark.parametrize("n", [-1, -3, -4])
+def test_negative(n):
+    # When called with a negative value for n, this test raises ValueError!
+    assert not square_mod.is_perfect_square(m)
+```
+
+<br/>
+
+<pre><tt class="hljs">
+<b>================================================ test session starts ================================================</b>
+platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
+<b>collected 17 items                                                                                                  </b>
+
+test_square_mod.py <font class="pytest-chars-green">..............</font><font class="pytest-red">FFF                                                                          [100%]</font>
+
+===================================================== FAILURES ======================================================
+<font class="pytest-red"><b>_________________________________________________ test_negative[-1] _________________________________________________</b></font>
+<font class="pytest-red"><b>test_square_mod.py</b></font>:21: in test_negative
+    <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(m)
+<font class="pytest-red"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
+<font class="pytest-red"><b>_________________________________________________ test_negative[-3] _________________________________________________</b></font>
+<font class="pytest-red"><b>test_square_mod.py</b></font>:21: in test_negative
+    <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(m)
+<font class="pytest-red"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
+<font class="pytest-red"><b>_________________________________________________ test_negative[-4] _________________________________________________</b></font>
+<font class="pytest-red"><b>test_square_mod.py</b></font>:21: in test_negative
+    <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(m)
+<font class="pytest-red"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
+============================================== short test summary info ==============================================
+FAILED test_square_mod.py::test_negative[-1] - NameError: name &apos;m&apos; is not defined
+FAILED test_square_mod.py::test_negative[-3] - NameError: name &apos;m&apos; is not defined
+FAILED test_square_mod.py::test_negative[-4] - NameError: name &apos;m&apos; is not defined
+<font class="pytest-red">=========================================== </font><font class="pytest-red"><b>3 failed</b></font>, <font class="pytest-green">14 passed</font><font class="pytest-red"> in 0.09s ============================================</font>
+</tt></pre>
+
 					</textarea>
 				</section>
 				
@@ -385,6 +456,30 @@ Start by writing the xfailing test, if it doesn't fail, your test won't catch th
 
 Your test suite will fail if you accidentally fix a bug - remove the `xfail` and you'll prevent regressions from the moment you merged!
 </div>
+
+--
+
+## [Good bug reports](https://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports) contain an example that is:
+
+<br/>
+
+### Complete
+As much code as you need to reproduce the issue.
+
+<br/>
+
+### Minimal
+As *little* code as you can.
+
+<br/>
+
+### Verifiable
+Anyone can use the example to reproduce the failure.
+
+<br/>
+<br/>
+
+## These are also the properties of a good test! <!-- .element: class="fragment" -->
 
 					</textarea>
 				</section>
@@ -519,9 +614,9 @@ def test_is_euler_number(n):
 platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
 <b>collected 4 items                                                                                                    </b>
 
-test_euler_numbers.py <font color="#10BA13">.</font><font color="#C4A000">xx</font><font color="#10BA13">.                                                                                     [100%]</font>
+test_euler_numbers.py <font class="pytest-chars-green">.</font><font class="pytest-xfail-yellow">xx</font><font class="pytest-chars-green">.                                                                                     [100%]</font>
 
-<font color="#10BA13">============================================ </font><font color="#4BE234"><b>2 passed</b></font>, <font color="#C4A000">2 xfailed</font><font color="#10BA13"> in 0.03s ============================================</font>
+<font class="pytest-chars-green">============================================ </font><font class="pytest-green"><b>2 passed</b></font>, <font class="pytest-xfail-yellow">2 xfailed</font><font class="pytest-chars-green"> in 0.03s ============================================</font>
 </tt>
 </pre>
 
@@ -625,225 +720,14 @@ platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
 plugins: hypothesis-6.39.4
 <b>collected 1 item                                                                                                     </b>
 
-test_hypothesis.py <font color="#C4A000">x                                                                                           [100%]</font>
+test_hypothesis.py <font class="pytest-xfail-yellow">x                                                                                           [100%]</font>
 
-<font color="#C4A000">================================================= </font><font color="#FCE94F"><b>1 xfailed</b></font><font color="#C4A000"> in 0.22s =================================================</font>
+<font class="pytest-xfail-yellow">================================================= </font><font class="pytest-xfail-yellow"><b>1 xfailed</b></font><font class="pytest-xfail-yellow"> in 0.22s =================================================</font>
 </tt>
 </pre>
 
 - Disguises real failures in non-`xfail` cases
 - Doesn't work with `pytest-runtime-xfail`
-
-					</textarea>
-				</section>
-				
-				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
-					<textarea data-template>
-# `xfail` and code coverage
-
-```python
-def do_fizzbuzz(n: int) -> str | int:
-    if (n % 15 == 0):
-        return "fizzbuzz"
-
-    if (n % 3 == 0):
-        return "fizz"
-
-    if (n % 5 == 0):
-        return "buzz"
-
-    return n
-```
-
-Some passing tests:
-
-```python
-import pytest
-
-@pytest.mark.parametrize("n, expected", [
-    (3, "fizz"),
-    (1, 1),
-    (2, 2),
-    (14, 14),
-    (15, "fizzbuzz"),
-])
-def test_fizzbuzz(n, expected):
-    assert do_fizzbuzz(n) == expected
-```
-
-One failing test:
-
-```python
-@pytest.mark.xfail(reason="Not implemented yet")
-def test_fizzbuzz_failure():
-    """Fizzbuzz should fail when passed a negative number."""
-    with pytest.raises(ValueError):
-        do_fizzbuzz(-5)  # Foreshadowing: this hits the n == 5 case!
-```
-
---
-
-Run with `pytest --cov`:
-
-<pre>
-<tt class="hljs">
-<b>================================================ test session starts =================================================</b>
-platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
-plugins: cov-3.0.0
-<b>collected 23 items / 17 deselected / 6 selected</b>
-
-test_fizzbuzz.py <font color="#10BA13">.....</font><font color="#C4A000">x</font><font color="#10BA13">                                                                                        [100%]</font>
-
----------- coverage: platform linux, python 3.10.2-final-0 -----------
-Name          Stmts   Miss  Cover
----------------------------------
-fizzbuzz.py       8      0   100%
----------------------------------
-TOTAL             8      0   100%
-
-
-<font color="#10BA13">==================================== </font><font color="#4BE234"><b>5 passed</b></font>, <font color="#C4A000">17 deselected</font>, <font color="#C4A000">1 xfailed</font><font color="#10BA13"> in 0.05s =====================================</font>
-</tt>
-</pre>
-
-✨🎉 100% code coverage! 🎉✨
-
---
-
-```python
-def do_fizzbuzz(n: int) -> str | int:
-    if n < 0:
-        raise ValueError(f"Number must be positive, but got {n}")
-
-    if (n % 15 == 0):
-        return "fizzbuzz"
-
-    if (n % 3 == 0):
-        return "fizz"
-
-    if (n % 5 == 0):
-        return "buzz"  # This line is no longer covered!
-
-    return n
-```
-
-<br/>
-
-Remove the `xfail` decorator, code coverage goes **down**! 😰😰😰
-
-<pre>
-<tt class="hljs">
-<b>================================================ test session starts =================================================</b>
-platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
-plugins: cov-3.0.0
-<b>collected 23 items / 17 deselected / 6 selected                                                                      </b>
-
-test_fizzbuzz.py <font color="#10BA13">.....</font><font color="#C4A000">X                                                                                        [100%]</font>
-
----------- coverage: platform linux, python 3.10.2-final-0 -----------
-Name          Stmts   Miss  Cover
----------------------------------
-fizzbuzz.py      10      1    90%
----------------------------------
-TOTAL            10      1    90%
-
-
-<font color="#C4A000">==================================== </font><font color="#10BA13">5 passed</font>, <font color="#FCE94F"><b>17 deselected</b></font>, <font color="#FCE94F"><b>1 xpassed</b></font><font color="#C4A000"> in 0.05s =====================================</font>
-</tt>
-</pre>
-
---
-
-```python
-def do_fizzbuzz(n: int) -> str | int:
-    if (n % 15 == 0):
-        return "fizzbuzz"
-
-    if (n % 3 == 0):
-        return "fizz"
-
-    if (n % 5 == 0):
-        return "buzz"
-
-    return n
-```
-
-Some passing tests:
-
-```python
-import pytest
-
-@pytest.mark.parametrize("n, expected", [
-    (3, "fizz"),
-    (1, 1),
-    (2, 2),
-    # 3, 1, 2, but no 5!
-    (14, 14),
-    (15, "fizzbuzz"),
-])
-def test_fizzbuzz(n, expected):
-    assert do_fizzbuzz(n) == expected
-```
-
-One failing test:
-
-```python
-@pytest.mark.xfail(reason="Not implemented yet")
-def test_fizzbuzz_failure():
-    """Fizzbuzz should fail when passed a negative number."""
-    with pytest.raises(ValueError):
-        do_fizzbuzz(-5)  # -5 % 5 == 0
-```
-
---
-
-## The Problem
-
-- Code coverage metrics assume that your tests *passed*
-
-- Expected failures don't pass, but they also don't cause the test suite to fail!
-
-Notes:
-
-Some lines are hit by well-executed passing tests, and some lines are hit as collateral damage from the flailing death throes of an expected failure. They both show up the same in the coverage statistics!
-
-
---
-
-# The Solution: Exclude expected failures from coverage
-
-<br/>
-
-With `pytest-cov`, attach the `no_cover` marker automatically in your `conftest.py`:
-
-<br/>
-
-```python
-def pytest_collection_modifyitems(items):
-    for item in items:
-        marker = item.get_closest_marker("xfail")
-
-        # Need to query the args because conditional xfail tests still have
-        # the xfail mark even if they are not expected to fail
-        if marker and (not marker.args or marker.args[0]):
-            item.add_marker(pytest.mark.no_cover)
-```
-
-<br/>
-
-See https://stackoverflow.com/q/53191930/467366
-
-<br/>
-
-[**`coverage.py` wants to add this feature natively**](https://github.com/nedbat/coveragepy/issues/727) — you could be the one to implement it!
-
---
-
-# Does this matter?
-
-<br/>
-
-**Probably not** <!-- .element: class="fragment" -->
 
 					</textarea>
 				</section>
@@ -898,14 +782,14 @@ $ pytest test_unittest.py
 platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
 <b>collected 3 items                                                                                                    </b>
 
-test_unittest.py <font color="#10BA13">.</font><font color="#C4A000">x</font><font color="#F61010">F                                                                                           [100%]</font>
+test_unittest.py <font class="pytest-chars-green">.</font><font class="pytest-xfail-yellow">x</font><font class="pytest-red">F                                                                                           [100%]</font>
 
 ====================================================== FAILURES ======================================================
-<font color="#EF2929"><b>_________________________________________________ MyTest.test_xpass __________________________________________________</b></font>
+<font class="pytest-red"><b>_________________________________________________ MyTest.test_xpass __________________________________________________</b></font>
 Unexpected success
 ============================================== short test summary info ===============================================
 FAILED test_unittest.py::MyTest::test_xpass
-<font color="#F61010">======================================= </font><font color="#EF2929"><b>1 failed</b></font>, <font color="#10BA13">1 passed</font>, <font color="#C4A000">1 xfailed</font><font color="#F61010"> in 0.04s =======================================</font>
+<font class="pytest-red">======================================= </font><font class="pytest-red"><b>1 failed</b></font>, <font class="pytest-chars-green">1 passed</font>, <font class="pytest-xfail-yellow">1 xfailed</font><font class="pytest-red"> in 0.04s =======================================</font>
 </tt>
 </pre>
 </div>
@@ -972,163 +856,6 @@ At runtime:
 
         ...
 ```
-
-					</textarea>
-				</section>
-				
-				<section data-markdown data-separator="^\n---\n$" data-separator-vertical="^\n--\n$" data-notes="^Note:">
-					<textarea data-template>
-# Bonus for pedants: A pseudo-TDD workflow
-
-<br/>
-
-## Test driven development:
-
-1. Write a minimal failing test.
-2. Write just enough code to make the test pass.
-3. Goto 1.
-
-<br/><br/>
-
-## Reality:
-
-1. Make some quick sketch to see if your idea even works.
-2. Maybe write some tests for the sketch.
-3. Realize your approach has some fundamental flaws, rip out half of the code and break a bunch of the tests.
-4. Clean up and refactor tests.
-
---
-
-# Bonus for pedants: A pseudo-TDD workflow
-
-```python
-def is_perfect_square(n: int) -> bool:
-    """Determine if any int i exists such that i × i = n."""
-    s = math.sqrt(n)
-    return s == int(s)
-```
-
-<br/>
-
-Simple enough fix — add the fix and the test at the same time:
-
-```python
-def is_perfect_square(n: int) -> bool:
-    """Determine if any int i exists such that i × i = n."""
-    if n < 0:
-        return False  # No negative numbers are perfect squares
-
-    s = math.sqrt(n)
-    return s == int(s)
-
-
-def test_negative():
-    """No negative values are perfect squares."""
-    assert not is_perfect_square(-4)
-```
-
-https://blog.ganssle.io/articles/2021/11/pseudo-tdd-xfail.html
-
---
-
-# Rewriting history
-
-```python
-@pytest.mark.xfail(raises=ValueError, strict=True,
-                   reason="Domain error when passed negative numbers.")
-def test_negative():
-    ...
-```
-
-<br/>
-
-Use `git add -p` or `hg commit -i` to selectively commit the test *before* the fix:
-
-```diff
-@@ -7,6 +7,11 @@ def is_perfect_square(n: int) -> bool:
-     s = math.sqrt(n)
-     return s == int(s)
-
-+@pytest.mark.xfail(raises=ValueError, strict=True,
-+                   reason="Domain error")
-+def test_negative():
-+    """No negative numbers are perfect squares."""
-+    assert not is_perfect_square(-4)
-
- def test_positive():
-     assert is_perfect_square(4)
-```
-<br/>
-
-Remove the `xfail` decorator and commit the fix + removal:
-
-```diff
-@@ -4,11 +4,12 @@ import pytest
-
- def is_perfect_square(n: int) -> bool:
-     """Determine if any int i exists such that i × i = n."""
-+    if n < 0:
-+        return False  # No negative numbers are perfect squares
-+
-     s = math.sqrt(n)
-     return s == int(s)
-
--@pytest.mark.xfail(raises=ValueError, strict=True,
--                   reason="Domain error")
- def test_negative():
-     """No negative numbers are perfect squares."""
-     assert not is_perfect_square(-4)
-```
-
---
-
-One of many options to run tests against all commits:
-
-<pre><tt class="hljs">$ git rev-list main..fix_negative_numbers | \
-    xargs -I{} sh -c &apos;git checkout {} &amp;&amp; pytest -q&apos; \
-    && git checkout main
-
-HEAD is now at 04a2dd7 Fix domain error with negative numbers
-<font color="#10BA13">.................                                                                                             [100%]</font>
-<font color="#4BE234"><b>17 passed</b></font><font color="#10BA13"> in 0.02s</font>
-Previous HEAD position was 04a2dd7 Fix domain error with negative numbers
-HEAD is now at c0a9722 Add failing test for negative squares
-<font color="#10BA13">..............</font><font color="#C4A000">xxx</font><font color="#10BA13">                                                                                             [100%]</font>
-<font color="#4BE234"><b>14 passed</b></font>, <font color="#C4A000">3 xfailed</font><font color="#10BA13"> in 0.03s</font>
-Previous HEAD position was c0a9722 Add failing test for negative squares
-Switched to branch &apos;main&apos;
-</tt>
-</pre>
-
-Merge and the history looks like we were using TDD the whole time:
-
-<pre><tt class="hljs">$ git log --oneline --decorate --graph
-* <font color="#C4A000">04a2dd7 (</font><font color="#34E2E2"><b>HEAD -&gt; </b></font><font color="#4BE234"><b>main</b></font><font color="#C4A000">, </font><font color="#4BE234"><b>fix_negative_numbers</b></font><font color="#C4A000">)</font> Fix domain error with negative numbers
-* <font color="#C4A000">c0a9722</font> Add failing test for negative squares
-* <font color="#C4A000">f9acaa7</font> Add implementation for perfect square
-</tt>
-</pre>
-
-https://blog.ganssle.io/articles/2021/11/pseudo-tdd-xfail.html
-
---
-
-# Advantages
-
-- Gives you some confidence that your tests worked
-- Makes it easier to verify that a test should be working
-- Tells a clear story for future maintainers
-
-<br/> <br/>
-
-# Disadvantages
-
-- It will be hard to get anyone else to do this.
-- It's not easy to run the tests against every commit (on GitHub, Gitlab or locally)
-
-<br/> <br/>
-
-https://blog.ganssle.io/articles/2021/11/pseudo-tdd-xfail.html
 
 					</textarea>
 				</section>
