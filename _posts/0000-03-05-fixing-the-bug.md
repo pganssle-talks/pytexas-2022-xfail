@@ -18,9 +18,9 @@ def is_perfect_square(n: int) -> bool:
 platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
 <b>collected 15 items                                                                                                  </b>
 
-test_square_mod.py <font color="#10BA13">..............</font><font color="#C4A000">X                                                                            [100%]</font>
+test_square_mod.py <font class="pytest-chars-green">..............</font><font class="pytest-xpass">X                                                                            [100%]</font>
 
-<font color="#C4A000">=========================================== </font><font color="#10BA13">14 passed</font>, <font color="#FCE94F"><b>1 xpassed</b></font><font color="#C4A000"> in 0.02s ===========================================</font>
+<font class="pytest-xpass">=========================================== </font><font class="pytest-chars-green">14 passed</font>, <font class="pytest-xpass"><b>1 xpassed</b></font><font class="pytest-xpass"> in 0.02s ===========================================</font>
 </tt></pre>
 
 --
@@ -43,20 +43,20 @@ def test_negative(n):
 platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
 <b>collected 17 items</b>
 
-test_square_mod.py <font color="#10BA13">..............</font><font color="#F61010">FFF                                                                          [100%]</font>
+test_square_mod.py <font class="pytest-chars-green">..............</font><font class="pytest-red">FFF                                                                          [100%]</font>
 
 ===================================================== FAILURES ======================================================
-<font color="#EF2929"><b>_________________________________________________ test_negative[-1] _________________________________________________</b></font>
+<font class="pytest-red"><b>_________________________________________________ test_negative[-1] _________________________________________________</b></font>
 [XPASS(strict)] Bug #11493: Negative values not supported
-<font color="#EF2929"><b>_________________________________________________ test_negative[-3] _________________________________________________</b></font>
+<font class="pytest-red"><b>_________________________________________________ test_negative[-3] _________________________________________________</b></font>
 [XPASS(strict)] Bug #11493: Negative values not supported
-<font color="#EF2929"><b>_________________________________________________ test_negative[-4] _________________________________________________</b></font>
+<font class="pytest-red"><b>_________________________________________________ test_negative[-4] _________________________________________________</b></font>
 [XPASS(strict)] Bug #11493: Negative values not supported
 ============================================== short test summary info ==============================================
 FAILED test_square_mod.py::test_negative[-1]
 FAILED test_square_mod.py::test_negative[-3]
 FAILED test_square_mod.py::test_negative[-4]
-<font color="#F61010">=========================================== </font><font color="#EF2929"><b>3 failed</b></font>, <font color="#10BA13">14 passed</font><font color="#F61010"> in 0.03s ============================================</font>
+<font class="pytest-red">=========================================== </font><font class="pytest-red"><b>3 failed</b></font>, <font class="pytest-chars-green">14 passed</font><font class="pytest-red"> in 0.03s ============================================</font>
 </tt></pre>
 
 --
@@ -115,9 +115,9 @@ platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
 plugins: subtests-0.7.0, runtime-xfail-1.0.3, cov-3.0.0, hypothesis-6.39.4
 <b>collected 17 items                                                                                                  </b>
 
-test_square_mod.py <font color="#10BA13">..............</font><font color="#C4A000">xxx</font><font color="#10BA13">                                                                          [100%]</font>
+test_square_mod.py <font class="pytest-chars-green">..............</font><font class="pytest-xfail-yellow">xxx</font><font class="pytest-chars-green">                                                                          [100%]</font>
 
-<font color="#10BA13">=========================================== </font><font color="#4BE234"><b>14 passed</b></font>, <font color="#C4A000">3 xfailed</font><font color="#10BA13"> in 0.03s ===========================================</font>
+<font class="pytest-chars-green">=========================================== </font><font class="pytest-green"><b>14 passed</b></font>, <font class="pytest-xfail-yellow">3 xfailed</font><font class="pytest-chars-green"> in 0.03s ===========================================</font>
 </tt>
 </pre>
 
@@ -147,24 +147,24 @@ def test_negative(n):
 platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
 <b>collected 17 items                                                                                                  </b>
 
-test_square_mod.py <font color="#10BA13">..............</font><font color="#F61010">FFF                                                                          [100%]</font>
+test_square_mod.py <font class="pytest-chars-green">..............</font><font class="pytest-red">FFF                                                                          [100%]</font>
 
 ===================================================== FAILURES ======================================================
-<font color="#EF2929"><b>_________________________________________________ test_negative[-1] _________________________________________________</b></font>
-<font color="#EF2929"><b>test_square_mod.py</b></font>:21: in test_negative
+<font class="pytest-red"><b>_________________________________________________ test_negative[-1] _________________________________________________</b></font>
+<font class="pytest-red"><b>test_square_mod.py</b></font>:21: in test_negative
     <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(m)
-<font color="#EF2929"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
-<font color="#EF2929"><b>_________________________________________________ test_negative[-3] _________________________________________________</b></font>
-<font color="#EF2929"><b>test_square_mod.py</b></font>:21: in test_negative
+<font class="pytest-red"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
+<font class="pytest-red"><b>_________________________________________________ test_negative[-3] _________________________________________________</b></font>
+<font class="pytest-red"><b>test_square_mod.py</b></font>:21: in test_negative
     <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(m)
-<font color="#EF2929"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
-<font color="#EF2929"><b>_________________________________________________ test_negative[-4] _________________________________________________</b></font>
-<font color="#EF2929"><b>test_square_mod.py</b></font>:21: in test_negative
+<font class="pytest-red"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
+<font class="pytest-red"><b>_________________________________________________ test_negative[-4] _________________________________________________</b></font>
+<font class="pytest-red"><b>test_square_mod.py</b></font>:21: in test_negative
     <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(m)
-<font color="#EF2929"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
+<font class="pytest-red"><b>E   NameError: name &apos;m&apos; is not defined</b></font>
 ============================================== short test summary info ==============================================
 FAILED test_square_mod.py::test_negative[-1] - NameError: name &apos;m&apos; is not defined
 FAILED test_square_mod.py::test_negative[-3] - NameError: name &apos;m&apos; is not defined
 FAILED test_square_mod.py::test_negative[-4] - NameError: name &apos;m&apos; is not defined
-<font color="#F61010">=========================================== </font><font color="#EF2929"><b>3 failed</b></font>, <font color="#10BA13">14 passed</font><font color="#F61010"> in 0.09s ============================================</font>
+<font class="pytest-red">=========================================== </font><font class="pytest-red"><b>3 failed</b></font>, <font class="pytest-green">14 passed</font><font class="pytest-red"> in 0.09s ============================================</font>
 </tt></pre>

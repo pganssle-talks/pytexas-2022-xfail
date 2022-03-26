@@ -46,14 +46,14 @@ $ pytest test_unittest.py
 platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
 <b>collected 3 items                                                                                                    </b>
 
-test_unittest.py <font color="#10BA13">.</font><font color="#C4A000">x</font><font color="#F61010">F                                                                                           [100%]</font>
+test_unittest.py <font class="pytest-chars-green">.</font><font class="pytest-xfail-yellow">x</font><font class="pytest-red">F                                                                                           [100%]</font>
 
 ====================================================== FAILURES ======================================================
-<font color="#EF2929"><b>_________________________________________________ MyTest.test_xpass __________________________________________________</b></font>
+<font class="pytest-red"><b>_________________________________________________ MyTest.test_xpass __________________________________________________</b></font>
 Unexpected success
 ============================================== short test summary info ===============================================
 FAILED test_unittest.py::MyTest::test_xpass
-<font color="#F61010">======================================= </font><font color="#EF2929"><b>1 failed</b></font>, <font color="#10BA13">1 passed</font>, <font color="#C4A000">1 xfailed</font><font color="#F61010"> in 0.04s =======================================</font>
+<font class="pytest-red">======================================= </font><font class="pytest-red"><b>1 failed</b></font>, <font class="pytest-chars-green">1 passed</font>, <font class="pytest-xfail-yellow">1 xfailed</font><font class="pytest-red"> in 0.04s =======================================</font>
 </tt>
 </pre>
 </div>

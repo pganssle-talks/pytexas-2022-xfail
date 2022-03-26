@@ -109,12 +109,12 @@ One of many options to run tests against all commits:
     && git checkout main
 
 HEAD is now at 04a2dd7 Fix domain error with negative numbers
-<font color="#10BA13">.................                                                                                             [100%]</font>
-<font color="#4BE234"><b>17 passed</b></font><font color="#10BA13"> in 0.02s</font>
+<font class="pytest-chars-green">.................                                                                                             [100%]</font>
+<font color="#4BE234"><b>17 passed</b></font><font class="pytest-chars-green"> in 0.02s</font>
 Previous HEAD position was 04a2dd7 Fix domain error with negative numbers
 HEAD is now at c0a9722 Add failing test for negative squares
-<font color="#10BA13">..............</font><font color="#C4A000">xxx</font><font color="#10BA13">                                                                                             [100%]</font>
-<font color="#4BE234"><b>14 passed</b></font>, <font color="#C4A000">3 xfailed</font><font color="#10BA13"> in 0.03s</font>
+<font class="pytest-chars-green">..............</font><font class="pytest-xfail-yellow">xxx</font><font class="pytest-chars-green">                                                                                             [100%]</font>
+<font color="#4BE234"><b>14 passed</b></font>, <font class="pytest-xfail-yellow">3 xfailed</font><font class="pytest-chars-green"> in 0.03s</font>
 Previous HEAD position was c0a9722 Add failing test for negative squares
 Switched to branch &apos;main&apos;
 </tt>
@@ -123,9 +123,9 @@ Switched to branch &apos;main&apos;
 Merge and the history looks like we were using TDD the whole time:
 
 <pre><tt class="hljs">$ git log --oneline --decorate --graph
-* <font color="#C4A000">04a2dd7 (</font><font color="#34E2E2"><b>HEAD -&gt; </b></font><font color="#4BE234"><b>main</b></font><font color="#C4A000">, </font><font color="#4BE234"><b>fix_negative_numbers</b></font><font color="#C4A000">)</font> Fix domain error with negative numbers
-* <font color="#C4A000">c0a9722</font> Add failing test for negative squares
-* <font color="#C4A000">f9acaa7</font> Add implementation for perfect square
+* <font class="pytest-xfail-yellow">04a2dd7 (</font><font color="#34E2E2"><b>HEAD -&gt; </b></font><font color="#4BE234"><b>main</b></font><font class="pytest-xfail-yellow">, </font><font color="#4BE234"><b>fix_negative_numbers</b></font><font class="pytest-xfail-yellow">)</font> Fix domain error with negative numbers
+* <font class="pytest-xfail-yellow">c0a9722</font> Add failing test for negative squares
+* <font class="pytest-xfail-yellow">f9acaa7</font> Add implementation for perfect square
 </tt>
 </pre>
 

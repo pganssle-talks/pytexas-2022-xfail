@@ -34,9 +34,9 @@ def test_non_squares(n):
 platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
 <b>collected 14 items                                                                                                  </b>
 
-test_square_mod.py <font color="green">..............                                                                             [100%]</font>
+test_square_mod.py <font class="pytest-chars-green">..............                                                                             [100%]</font>
 
-<font color="green">================================================ </font><font color="green"><b>14 passed</b></font><font color="green"> in 0.02s =================================================</font>
+<font class="pytest-chars-green">================================================ </font><font class="pytest-green"><b>14 passed</b></font><font class="pytest-chars-green"> in 0.02s =================================================</font>
 </tt></pre>
 
 Notes:
@@ -60,28 +60,28 @@ def test_negative():
 platform linux -- Python 3.10.0, pytest-7.1.1, pluggy-1.0.0
 <b>collected 15 items                                                                                                  </b>
 
-test_square_mod.py <font color="green">..............</font><font color="#8B0000">F                                                                            [100%]</font>
+test_square_mod.py <font class="pytest-green">..............</font><font class="pytest-red">F                                                                            [100%]</font>
 
 ===================================================== FAILURES ======================================================
-<font color="#8B0000"><b>___________________________________________________ test_negative ___________________________________________________</b></font>
+<font class="pytest-red"><b>___________________________________________________ test_negative ___________________________________________________</b></font>
 
-    <font color="#729FCF">def</font> <font color="green">test_negative</font>():
+    <font color="#729FCF">def</font> <font class="pytest-green">test_negative</font>():
 &gt;       <font color="#729FCF">assert</font> <font color="#AD7FA8">not</font> square_mod.is_perfect_square(-<font color="#729FCF">4</font>)
 
-<font color="#8B0000"><b>test_square_mod.py</b></font>:17:
+<font class="pytest-red"><b>test_square_mod.py</b></font>:17:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 n = -4
 
-    <font color="#729FCF">def</font> <font color="green">is_perfect_square</font>(n: <font color="#34E2E2">int</font>) -&gt; <font color="#34E2E2">bool</font>:
-        <font color="green">&quot;&quot;&quot;Determine if any int i exists such that i × i = n.&quot;&quot;&quot;</font>
+    <font color="#729FCF">def</font> <font class="pytest-green">is_perfect_square</font>(n: <font color="#34E2E2">int</font>) -&gt; <font color="#34E2E2">bool</font>:
+        <font class="pytest-green">&quot;&quot;&quot;Determine if any int i exists such that i × i = n.&quot;&quot;&quot;</font>
 &gt;       s = math.sqrt(n)
-<font color="#8B0000"><b>E       ValueError: math domain error</b></font>
+<font class="pytest-red"><b>E       ValueError: math domain error</b></font>
 
-<font color="#8B0000"><b>square_mod.py</b></font>:5: ValueError
+<font class="pytest-red"><b>square_mod.py</b></font>:5: ValueError
 ============================================== short test summary info ==============================================
 FAILED test_square_mod.py::test_negative - ValueError: math domain error
-<font color="#8B0000">=========================================== </font><font color="#8B0000"><b>1 failed</b></font>, <font color="green">14 passed</font><font color="#8B0000"> in 0.08s ============================================</font>
+<font class="pytest-red">=========================================== </font><font class="pytest-red"><b>1 failed</b></font>, <font class="pytest-green">14 passed</font><font class="pytest-red"> in 0.08s ============================================</font>
 </tt>
 </pre>
 
@@ -108,9 +108,9 @@ platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
 plugins: subtests-0.7.0, runtime-xfail-1.0.3, cov-3.0.0, hypothesis-6.39.4
 <b>collected 17 items                                                                                                  </b>
 
-test_square_mod.py <font color="#10BA13">..............</font><font color="#C4A000">xxx</font><font color="#10BA13">                                                                          [100%]</font>
+test_square_mod.py <font class="pytest-chars-green">..............</font><font class="pytest-green">xxx</font><font class="pytest-chars-green">                                                                          [100%]</font>
 
-<font color="#10BA13">=========================================== </font><font color="#4BE234"><b>14 passed</b></font>, <font color="#C4A000">3 xfailed</font><font color="#10BA13"> in 0.03s ===========================================</font>
+<font class="pytest-chars-green">=========================================== </font><font class="pytest-green"><b>14 passed</b></font>, <font class="pytest-xfail-yellow">3 xfailed</font><font class="pytest-chars-green"> in 0.03s ===========================================</font>
 </tt>
 </pre>
 

@@ -516,6 +516,30 @@ img.sbitem {
     font-size: 0px;
 }
 
+/* #####################################
+ *  Pytest color scheme
+ */
+
+.pytest-green {
+    color: #008000;
+}
+
+.pytest-chars-green {
+    color: #008000;
+}
+
+.pytest-red {
+    color: #c41a16;
+}
+
+.pytest-xfail-yellow {
+    color: #C4A000;
+}
+
+.pytest-xpass {
+    color: #f2a035;
+}
+
 /****************************
  *  HACK
  *

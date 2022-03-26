@@ -51,7 +51,7 @@ platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
 plugins: cov-3.0.0
 <b>collected 23 items / 17 deselected / 6 selected</b>
 
-test_fizzbuzz.py <font color="#10BA13">.....</font><font color="#C4A000">x</font><font color="#10BA13">                                                                                        [100%]</font>
+test_fizzbuzz.py <font class="pytest-chars-green">.....</font><font class="pytest-xfail-yellow">x</font><font class="pytest-chars-green">                                                                                        [100%]</font>
 
 ---------- coverage: platform linux, python 3.10.2-final-0 -----------
 Name          Stmts   Miss  Cover
@@ -61,7 +61,7 @@ fizzbuzz.py       8      0   100%
 TOTAL             8      0   100%
 
 
-<font color="#10BA13">==================================== </font><font color="#4BE234"><b>5 passed</b></font>, <font color="#C4A000">17 deselected</font>, <font color="#C4A000">1 xfailed</font><font color="#10BA13"> in 0.05s =====================================</font>
+<font class="pytest-chars-green">==================================== </font><font class="pytest-green"><b>5 passed</b></font>, <font class="pytest-xfail-yellow">17 deselected</font>, <font class="pytest-xfail-yellow">1 xfailed</font><font class="pytest-chars-green"> in 0.05s =====================================</font>
 </tt>
 </pre>
 
@@ -97,7 +97,7 @@ platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
 plugins: cov-3.0.0
 <b>collected 23 items / 17 deselected / 6 selected                                                                      </b>
 
-test_fizzbuzz.py <font color="#10BA13">.....</font><font color="#C4A000">X                                                                                        [100%]</font>
+test_fizzbuzz.py <font class="pytest-chars-green">.....</font><font class="pytest-xfail-yellow">X                                                                                        [100%]</font>
 
 ---------- coverage: platform linux, python 3.10.2-final-0 -----------
 Name          Stmts   Miss  Cover
@@ -107,7 +107,7 @@ fizzbuzz.py      10      1    90%
 TOTAL            10      1    90%
 
 
-<font color="#C4A000">==================================== </font><font color="#10BA13">5 passed</font>, <font color="#FCE94F"><b>17 deselected</b></font>, <font color="#FCE94F"><b>1 xpassed</b></font><font color="#C4A000"> in 0.05s =====================================</font>
+<font class="pytest-xpass">==================================== </font><font class="pytest-green">5 passed</font>, <font class="pytest-xpass"><b>17 deselected</b></font>, <font class="pytest-xpass"><b>1 xpassed</b></font><font class="pytest-xpass"> in 0.05s =====================================</font>
 </tt>
 </pre>
 

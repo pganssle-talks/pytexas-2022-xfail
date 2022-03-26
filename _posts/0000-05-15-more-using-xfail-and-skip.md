@@ -93,9 +93,9 @@ platform linux -- Python 3.10.2, pytest-7.1.1, pluggy-1.0.0
 plugins: hypothesis-6.39.4
 <b>collected 1 item                                                                                                     </b>
 
-test_hypothesis.py <font color="#C4A000">x                                                                                           [100%]</font>
+test_hypothesis.py <font class="pytest-xfail-yellow">x                                                                                           [100%]</font>
 
-<font color="#C4A000">================================================= </font><font color="#FCE94F"><b>1 xfailed</b></font><font color="#C4A000"> in 0.22s =================================================</font>
+<font class="pytest-xfail-yellow">================================================= </font><font class="pytest-xfail-yellow"><b>1 xfailed</b></font><font class="pytest-xfail-yellow"> in 0.22s =================================================</font>
 </tt>
 </pre>
 
